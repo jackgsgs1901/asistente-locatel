@@ -2,134 +2,127 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asistente LOCATEL</title>
+  <title>Recomendador de Vitaminas Locatel</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f6f6f6;
-      padding: 20px;
+      background-color: #f4fdf4;
+      color: #1b5e20;
       max-width: 600px;
-      margin: auto;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #a5d6a7;
     }
+
     h1 {
-      color: #007E5A;
       text-align: center;
+      color: #2e7d32;
     }
+
+    img {
+      display: block;
+      margin: 0 auto 20px;
+      width: 150px;
+    }
+
     label {
       display: block;
       margin-top: 15px;
-      font-weight: bold;
     }
-    input, select, textarea, button {
+
+    input, select, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      border: 1px solid #c8e6c9;
+      border-radius: 5px;
     }
+
     button {
-      background-color: #007E5A;
+      background-color: #2e7d32;
       color: white;
-      font-weight: bold;
-      margin-top: 25px;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      margin-right: 10px;
       cursor: pointer;
+      border-radius: 5px;
     }
+
     button:hover {
-      background-color: #005f43;
+      background-color: #1b5e20;
     }
+
     #resultado {
       margin-top: 30px;
-      background: #fff;
-      border-left: 4px solid #007E5A;
-      padding: 20px;
-      border-radius: 8px;
+      font-weight: bold;
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #a5d6a7;
+    }
+
+    ul {
+      padding-left: 20px;
     }
   </style>
 </head>
 <body>
-
-  <h1>Asistente de Vitaminas LOCATEL</h1>
-
-  <form id="vitamin-form">
-    <label for="nombre">¿Cuál es tu nombre?</label>
-    <input type="text" id="nombre" required>
-
-    <label for="edad">¿Cuál es tu edad?</label>
-    <input type="number" id="edad" required>
-
-    <label for="sexo">¿Cuál es tu sexo?</label>
-    <select id="sexo" required>
-      <option value="">Selecciona</option>
-      <option value="Masculino">Masculino</option>
-      <option value="Femenino">Femenino</option>
-    </select>
-
-    <label for="alergias">¿Tienes alguna alergia?</label>
-    <textarea id="alergias" placeholder="Ej: Penicilina, lactosa..."></textarea>
-
-    <label for="pastillas">¿Estás tomando alguna pastilla actualmente?</label>
-    <textarea id="pastillas" placeholder="Ej: Paracetamol, ibuprofeno..."></textarea>
-
+  <img src="assets/locatel-logo.png" alt="Logo Locatel" />
+  <h1>Recomendador de Vitaminas</h1>
+  <form id="vitaminasForm">
+    <label>Nombre:
+      <input type="text" name="nombre" required />
+    </label>
+    <label>Edad:
+      <input type="number" name="edad" required />
+    </label>
+    <label>Sexo:
+      <select name="sexo" required>
+        <option value="">Seleccionar</option>
+        <option value="Femenino">Femenino</option>
+        <option value="Masculino">Masculino</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </label>
+    <label>Alergias:
+      <textarea name="alergias"></textarea>
+    </label>
+    <label>Medicamentos:
+      <textarea name="medicamentos"></textarea>
+    </label>
     <button type="submit">Obtener recomendación</button>
+    <button type="button" onclick="reiniciarFormulario()">Reiniciar</button>
   </form>
 
-  <div id="resultado" style="display:none;"></div>
+  <div id="resultado"></div>
 
   <script>
-    const form = document.getElementById('vitamin-form');
-    const resultado = document.getElementById('resultado');
-
-    form.addEventListener('submit', async (e) => {
+    document.getElementById("vitaminasForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-      resultado.style.display = 'none';
-      resultado.innerHTML = "Cargando recomendación...";
 
-      const datos = {
-        nombre: document.getElementById('nombre').value,
-        edad: document.getElementById('edad').value,
-        sexo: document.getElementById('sexo').value,
-        alergias: document.getElementById('alergias').value,
-        pastillas: document.getElementById('pastillas').value
-      };
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
 
-      const prompt = `
-Eres un experto en salud de LOCATEL. Basado en la siguiente información del cliente, recomienda una vitamina ideal. 
-No menciones que eres un modelo de lenguaje, responde directamente con una recomendación amable y clara.
+      const res = await fetch('/recomendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-Nombre: ${datos.nombre}
-Edad: ${datos.edad}
-Sexo: ${datos.sexo}
-Alergias: ${datos.alergias || "Ninguna"}
-Pastillas que toma: ${datos.pastillas || "Ninguna"}
+      const result = await res.json();
+      const resultadoDiv = document.getElementById("resultado");
 
-Recomendación:
-`;
-
-      try {
-        const response = await fetch("http://localhost:3000/recomendar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ prompt })
-        });
-
-        const data = await response.json();
-        console.log(data);
-
-        const texto = data.choices?.[0]?.message?.content || "No se pudo generar una recomendación.";
-        resultado.innerHTML = `<strong>Resultado:</strong><br><br>${texto}`;
-        resultado.style.display = 'block';
-
-      } catch (error) {
-        resultado.innerHTML = "Hubo un error al generar la recomendación.";
-        resultado.style.display = 'block';
-        console.error(error);
-      }
+      const lines = result.resultado.split(/\n+/).filter(line => line.trim() !== '');
+      const listItems = lines.map(line => `<li>${line}</li>`).join("");
+      resultadoDiv.innerHTML = `<ul>${listItems}</ul>`;
     });
-  </script>
 
+    function reiniciarFormulario() {
+      document.getElementById("vitaminasForm").reset();
+      document.getElementById("resultado").innerHTML = "";
+    }
+  </script>
 </body>
 </html>
