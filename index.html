@@ -23,7 +23,7 @@
     img {
       display: block;
       margin: 0 auto 20px;
-      width: 150px;
+      width: 250px;
     }
 
     label {
@@ -127,6 +127,9 @@
     <label id="labelMedicamentos"><span>Medicamentos:</span>
       <textarea name="medicamentos"></textarea>
     </label>
+    <label id="labelVitaminas"><span>¿Tomas actualmente alguna vitamina?</span>
+      <textarea name="vitaminas"></textarea>
+    </label>
     <button type="submit">Obtener recomendación</button>
     <button type="button" onclick="reiniciar()">Reiniciar</button>
   </form>
@@ -148,7 +151,8 @@ En cumplimiento con las leyes del Estado de Florida, solo un farmacéutico licen
         edad: "Edad:",
         sexo: "Sexo:",
         alergias: "Alergias:",
-        medicamentos: "Medicamentos:"
+        medicamentos: "Medicamentos:",
+        vitaminas: "¿Tomas actualmente alguna vitamina?"
       },
       en: {
         terminos: `Important note:
@@ -163,7 +167,8 @@ In compliance with Florida law, only a licensed pharmacist can provide personali
         edad: "Age:",
         sexo: "Gender:",
         alergias: "Allergies:",
-        medicamentos: "Medications:"
+        medicamentos: "Medications:",
+        vitaminas: "Do you currently take any vitamins?"
       }
     };
 
@@ -186,11 +191,12 @@ In compliance with Florida law, only a licensed pharmacist can provide personali
       document.getElementById("terminosBox").classList.add("hidden");
       document.getElementById("vitaminasForm").classList.remove("hidden");
 
-      document.querySelector('#labelNombre span').innerText = textos[idiomaActual].nombre;
-      document.querySelector('#labelEdad span').innerText = textos[idiomaActual].edad;
-      document.querySelector('#labelSexo span').innerText = textos[idiomaActual].sexo;
-      document.querySelector('#labelAlergias span').innerText = textos[idiomaActual].alergias;
-      document.querySelector('#labelMedicamentos span').innerText = textos[idiomaActual].medicamentos;
+      document.querySelector("#labelNombre span").innerText = textos[idiomaActual].nombre;
+      document.querySelector("#labelEdad span").innerText = textos[idiomaActual].edad;
+      document.querySelector("#labelSexo span").innerText = textos[idiomaActual].sexo;
+      document.querySelector("#labelAlergias span").innerText = textos[idiomaActual].alergias;
+      document.querySelector("#labelMedicamentos span").innerText = textos[idiomaActual].medicamentos;
+      document.querySelector("#labelVitaminas span").innerText = textos[idiomaActual].vitaminas;
     }
 
     document.getElementById("vitaminasForm").addEventListener("submit", async function(e) {
@@ -198,10 +204,10 @@ In compliance with Florida law, only a licensed pharmacist can provide personali
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
 
-      const res = await fetch('https://asistente-locatel.onrender.com/recomendar', {
+      const res = await fetch('/recomendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify({ ...data, idioma: idiomaActual })
       });
 
       const result = await res.json();

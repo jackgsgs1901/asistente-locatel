@@ -1,10 +1,8 @@
 import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
-
 
 dotenv.config();
 
@@ -13,21 +11,42 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(cors());
 
 app.use(express.json());
-app.use(express.static(__dirname)); // para servir index.html y assets
+app.use(express.static(__dirname)); // sirve index.html y assets
 
 app.post('/recomendar', async (req, res) => {
-  const { nombre, edad, sexo, alergias, medicamentos } = req.body;
+  const { nombre, edad, sexo, alergias, medicamentos, vitaminas, idioma } = req.body;
 
-  const prompt = `
+  let prompt = "";
+
+  if (idioma === "en") {
+    prompt = `
+You are a pharmacy expert. Based on the customer's data:
+Name: ${nombre}
+Age: ${edad}
+Gender: ${sexo}
+Allergies: ${alergias || 'None'}
+Medications: ${medicamentos || 'None'}
+Currently taking vitamins: ${vitaminas || 'None'}
+
+Recommend at least 3 supplements or vitamins, including:
+- Product name
+- Recommended daily dosage
+- Clear medical/pharmacological justification
+
+Use a professional tone that is easy to understand.
+every time finish with "THANK FOR USE LOCATE"
+    `;
+  } else {
+    prompt = `
 Eres un experto en farmacia. Basado en los datos del cliente:
 Nombre: ${nombre}
 Edad: ${edad}
 Sexo: ${sexo}
 Alergias: ${alergias || 'Ninguna'}
 Medicamentos: ${medicamentos || 'Ninguno'}
+Actualmente toma vitaminas: ${vitaminas || 'Ninguna'}
 
 Recomienda al menos 3 suplementos o vitaminas, indicando:
 - Nombre del producto
@@ -35,7 +54,9 @@ Recomienda al menos 3 suplementos o vitaminas, indicando:
 - Justificación médica/farmacológica clara
 
 Hazlo en tono profesional y fácil de entender.
-`;
+todo el tiempo termina diciendo "Gracias Por Consultar con Locatel"
+    `;
+  }
 
   try {
     const respuesta = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -57,10 +78,6 @@ Hazlo en tono profesional y fácil de entender.
     console.error('❌ Error en la petición a Groq:', error);
     res.status(500).json({ resultado: 'Hubo un error al generar la recomendación.' });
   }
-});
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
