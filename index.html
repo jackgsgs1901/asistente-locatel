@@ -107,13 +107,13 @@
   </div>
 
   <form id="vitaminasForm" class="hidden">
-    <label id="labelNombre">Nombre:
+    <label id="labelNombre"><span>Nombre:</span>
       <input type="text" name="nombre" required />
     </label>
-    <label id="labelEdad">Edad:
+    <label id="labelEdad"><span>Edad:</span>
       <input type="number" name="edad" required />
     </label>
-    <label id="labelSexo">Sexo:
+    <label id="labelSexo"><span>Sexo:</span>
       <select name="sexo" required>
         <option value="">Seleccionar</option>
         <option value="Femenino">Femenino</option>
@@ -121,10 +121,10 @@
         <option value="Otro">Otro</option>
       </select>
     </label>
-    <label id="labelAlergias">Alergias:
+    <label id="labelAlergias"><span>Alergias:</span>
       <textarea name="alergias"></textarea>
     </label>
-    <label id="labelMedicamentos">Medicamentos:
+    <label id="labelMedicamentos"><span>Medicamentos:</span>
       <textarea name="medicamentos"></textarea>
     </label>
     <button type="submit">Obtener recomendación</button>
@@ -186,11 +186,11 @@ In compliance with Florida law, only a licensed pharmacist can provide personali
       document.getElementById("terminosBox").classList.add("hidden");
       document.getElementById("vitaminasForm").classList.remove("hidden");
 
-      document.getElementById("labelNombre").innerText = textos[idiomaActual].nombre;
-      document.getElementById("labelEdad").innerText = textos[idiomaActual].edad;
-      document.getElementById("labelSexo").innerText = textos[idiomaActual].sexo;
-      document.getElementById("labelAlergias").innerText = textos[idiomaActual].alergias;
-      document.getElementById("labelMedicamentos").innerText = textos[idiomaActual].medicamentos;
+      document.querySelector('#labelNombre span').innerText = textos[idiomaActual].nombre;
+      document.querySelector('#labelEdad span').innerText = textos[idiomaActual].edad;
+      document.querySelector('#labelSexo span').innerText = textos[idiomaActual].sexo;
+      document.querySelector('#labelAlergias span').innerText = textos[idiomaActual].alergias;
+      document.querySelector('#labelMedicamentos span').innerText = textos[idiomaActual].medicamentos;
     }
 
     document.getElementById("vitaminasForm").addEventListener("submit", async function(e) {
