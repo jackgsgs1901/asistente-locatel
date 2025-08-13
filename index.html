@@ -63,22 +63,57 @@
       border: 1px solid #a5d6a7;
     }
 
-    ul {
-      padding-left: 20px;
+    .hidden {
+      display: none;
+    }
+
+    .terms {
+      background: #fff;
+      border: 1px solid #a5d6a7;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .lang-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin: 15px 0;
     }
   </style>
 </head>
 <body>
   <img src="assets/locatel-logo.png" alt="Logo Locatel" />
   <h1>ASISTENTE VIRTUAL LOCATEL</h1>
-  <form id="vitaminasForm">
-    <label>Nombre:
+
+  <div id="idiomaSeleccion">
+    <p>Seleccione su idioma / Select your language:</p>
+    <div class="lang-buttons">
+      <button onclick="setIdioma('es')">Español</button>
+      <button onclick="setIdioma('en')">English</button>
+    </div>
+  </div>
+
+  <div id="terminosBox" class="hidden">
+    <div class="terms" id="terminosTexto"></div>
+    <label>
+      <input type="checkbox" id="aceptarTerminos" />
+      <span id="aceptarTexto"></span>
+    </label>
+    <button onclick="mostrarFormulario()">Continuar</button>
+  </div>
+
+  <form id="vitaminasForm" class="hidden">
+    <label id="labelNombre">Nombre:
       <input type="text" name="nombre" required />
     </label>
-    <label>Edad:
+    <label id="labelEdad">Edad:
       <input type="number" name="edad" required />
     </label>
-    <label>Sexo:
+    <label id="labelSexo">Sexo:
       <select name="sexo" required>
         <option value="">Seleccionar</option>
         <option value="Femenino">Femenino</option>
@@ -86,26 +121,84 @@
         <option value="Otro">Otro</option>
       </select>
     </label>
-    <label>Alergias:
+    <label id="labelAlergias">Alergias:
       <textarea name="alergias"></textarea>
     </label>
-    <label>Medicamentos:
+    <label id="labelMedicamentos">Medicamentos:
       <textarea name="medicamentos"></textarea>
     </label>
     <button type="submit">Obtener recomendación</button>
-    <button type="button" onclick="reiniciarFormulario()">Reiniciar</button>
+    <button type="button" onclick="reiniciar()">Reiniciar</button>
   </form>
 
   <div id="resultado"></div>
 
   <script>
+    const textos = {
+      es: {
+        terminos: `Nota importante:
+Las recomendaciones de este app son de carácter general y no sustituyen el consejo profesional de un farmacéutico o médico.
+Siempre consulte con un farmacéutico licenciado antes de iniciar cualquier medicamento o suplemento, especialmente si está tomando otros medicamentos, tiene condiciones médicas, está embarazada o lactando.
+
+Este app no está diseñado para diagnosticar, tratar, curar ni prevenir ninguna enfermedad.
+
+En cumplimiento con las leyes del Estado de Florida, solo un farmacéutico licenciado puede brindar asesoramiento clínico personalizado.`,
+        aceptar: "Acepto los términos y condiciones",
+        nombre: "Nombre:",
+        edad: "Edad:",
+        sexo: "Sexo:",
+        alergias: "Alergias:",
+        medicamentos: "Medicamentos:"
+      },
+      en: {
+        terminos: `Important note:
+The recommendations provided by this app are general and do not replace the professional advice of a pharmacist or physician.
+Always consult a licensed pharmacist before starting any medication or supplement, especially if you are taking other medications, have medical conditions, are pregnant or nursing.
+
+This app is not intended to diagnose, treat, cure, or prevent any disease.
+
+In compliance with Florida law, only a licensed pharmacist can provide personalized clinical advice.`,
+        aceptar: "I accept the terms and conditions",
+        nombre: "Name:",
+        edad: "Age:",
+        sexo: "Gender:",
+        alergias: "Allergies:",
+        medicamentos: "Medications:"
+      }
+    };
+
+    let idiomaActual = 'es';
+
+    function setIdioma(idioma) {
+      idiomaActual = idioma;
+      document.getElementById("idiomaSeleccion").classList.add("hidden");
+      document.getElementById("terminosBox").classList.remove("hidden");
+
+      document.getElementById("terminosTexto").innerText = textos[idioma].terminos;
+      document.getElementById("aceptarTexto").innerText = textos[idioma].aceptar;
+    }
+
+    function mostrarFormulario() {
+      if (!document.getElementById("aceptarTerminos").checked) {
+        alert("Debe aceptar los términos para continuar.");
+        return;
+      }
+      document.getElementById("terminosBox").classList.add("hidden");
+      document.getElementById("vitaminasForm").classList.remove("hidden");
+
+      document.getElementById("labelNombre").innerText = textos[idiomaActual].nombre;
+      document.getElementById("labelEdad").innerText = textos[idiomaActual].edad;
+      document.getElementById("labelSexo").innerText = textos[idiomaActual].sexo;
+      document.getElementById("labelAlergias").innerText = textos[idiomaActual].alergias;
+      document.getElementById("labelMedicamentos").innerText = textos[idiomaActual].medicamentos;
+    }
+
     document.getElementById("vitaminasForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
 
-      const res = await fetch('/recomendar', {
+      const res = await fetch('https://asistente-locatel.onrender.com/recomendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -119,9 +212,8 @@
       resultadoDiv.innerHTML = `<ul>${listItems}</ul>`;
     });
 
-    function reiniciarFormulario() {
-      document.getElementById("vitaminasForm").reset();
-      document.getElementById("resultado").innerHTML = "";
+    function reiniciar() {
+      location.reload();
     }
   </script>
 </body>
