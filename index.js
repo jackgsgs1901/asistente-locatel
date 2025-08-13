@@ -56,6 +56,10 @@ Hazlo en tono profesional y fácil de entender.
   }
 });
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.listen(port, () => {
   console.log(`✅ Servidor escuchando en http://localhost:${port}`);
 });
